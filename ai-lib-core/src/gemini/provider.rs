@@ -1,5 +1,5 @@
 use crate::{
-    capabilities::provider::{self, ChatResponse},
+    capabilities::{domain, provider},
     errors,
 };
 use reqwest::header;
@@ -45,9 +45,10 @@ impl GeminiProvider {
 impl provider::ChatProvider for GeminiProvider {
     async fn generate_text(
         &self,
-        request: provider::ChatRequest,
-    ) -> errors::AiLibResult<provider::ChatResponse> {
-        let url = GeminiProvider::gemini_url(&request.model);
+        request: domain::ChatRequest,
+        model: &'static str,
+    ) -> errors::AiLibResult<domain::ChatResponse> {
+        let url = GeminiProvider::gemini_url(&model);
         let gemini_request = request.into();
         let raw_response = self
             .reqwest
@@ -63,16 +64,16 @@ impl provider::ChatProvider for GeminiProvider {
     }
 }
 
-impl From<provider::ChatRequest> for GeminiApiRequest {
-    fn from(value: provider::ChatRequest) -> Self {
+impl From<domain::ChatRequest> for GeminiApiRequest {
+    fn from(value: domain::ChatRequest) -> Self {
         GeminiApiRequest {
             contents: value.prompt.into_iter().map(Content::from).collect(),
         }
     }
 }
 
-impl From<provider::RequestMessage> for Content {
-    fn from(value: provider::RequestMessage) -> Self {
+impl From<domain::RequestMessage> for Content {
+    fn from(value: domain::RequestMessage) -> Self {
         let text = value.text;
         Content {
             parts: vec![Part { text: text }],
@@ -84,18 +85,18 @@ impl From<provider::RequestMessage> for Content {
     }
 }
 
-impl From<GeminiApiResponse> for provider::ChatResponse {
+impl From<GeminiApiResponse> for domain::ChatResponse {
     fn from(value: GeminiApiResponse) -> Self {
         let first_candidate = value.candidates.into_iter().next().unwrap();
-        ChatResponse {
+        domain::ChatResponse {
             content: vec![first_candidate.content.into()],
         }
     }
 }
 
-impl From<Content> for provider::ResponseMessage {
+impl From<Content> for domain::ResponseMessage {
     fn from(value: Content) -> Self {
-        provider::ResponseMessage {
+        domain::ResponseMessage {
             text: value
                 .parts
                 .into_iter()
@@ -106,11 +107,11 @@ impl From<Content> for provider::ResponseMessage {
     }
 }
 
-impl From<provider::Role> for Role {
-    fn from(value: provider::Role) -> Self {
+impl From<domain::Role> for Role {
+    fn from(value: domain::Role) -> Self {
         match value {
-            provider::Role::User | provider::Role::Assistant => Role::User,
-            provider::Role::System => Role::Model,
+            domain::Role::User | domain::Role::Assistant => Role::User,
+            domain::Role::System => Role::Model,
         }
     }
 }
