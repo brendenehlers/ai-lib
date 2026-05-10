@@ -3,11 +3,12 @@ name = "ai-lib"
 version = "0.1.0"
 edition = "2024"
 resolver = "3"
-members = ["ai-lib-bin","ai-lib-core", "ai-lib-gemini"]
+members = ["ai-lib-bin", "ai-lib-anthropic","ai-lib-core", "ai-lib-gemini"]
 
 [workspace.dependencies]
 ai-lib-core = { path = "ai-lib-core" }
 ai-lib-gemini = { path = "ai-lib-gemini" }
+ai-lib-anthropic = { path = "ai-lib-anthropic" }
 reqwest = { version = "0.13.3", features = ["json"] }
 serde = { version = "1.0.228", features = ["derive"] }
 thiserror = "2.0.18"

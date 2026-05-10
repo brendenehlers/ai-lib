@@ -3,9 +3,19 @@
 version = 4
 
 [[package]]
+name = "ai-lib-anthropic"
+version = "0.1.0"
+dependencies = [
+ "ai-lib-core",
+ "reqwest",
+ "serde",
+]
+
+[[package]]
 name = "ai-lib-bin"
 version = "0.1.0"
 dependencies = [
+ "ai-lib-anthropic",
  "ai-lib-core",
  "ai-lib-gemini",
  "tokio",

@@ -8,7 +8,7 @@ pub trait Model {
 pub trait ChatModel {
     fn generate_text(
         &self,
-        request: domain::ChatRequest,
+        request: domain::GenerateTextRequest,
     ) -> impl Future<Output = errors::AiLibResult<domain::GenerateTextResponse>> + Send;
 }
 

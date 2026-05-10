@@ -44,11 +44,12 @@ impl<M: Model> ClientBuilder<HasModel<M>> {
 
 impl<M: Model + ChatModel> ClientBuilder<HasPrompt<M>> {
     pub async fn generate_text(self) -> AiLibResult<ModelResponse<GenerateText>> {
-        let request = domain::ChatRequest {
+        let request = domain::GenerateTextRequest {
             prompt: vec![domain::RequestMessage {
                 text: self.state.prompt,
                 role: Some(domain::Role::User),
             }],
+            model_name: self.state.model.model_name().into(),
         };
         let response = self.state.model.generate_text(request).await?;
         Ok(ModelResponse {

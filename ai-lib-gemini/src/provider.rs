@@ -13,7 +13,7 @@ pub enum GeminiAuth {
 }
 
 impl GeminiProvider {
-    pub fn new(auth: GeminiAuth) -> errors::AiLibResult<GeminiProvider> {
+    pub fn new(auth: GeminiAuth) -> errors::AiLibResult<Self> {
         let mut headers = header::HeaderMap::new();
         headers.insert(
             header::CONTENT_TYPE,
@@ -45,10 +45,9 @@ impl GeminiProvider {
 impl provider::ChatProvider for GeminiProvider {
     async fn generate_text(
         &self,
-        request: domain::ChatRequest,
-        model: &'static str,
+        request: domain::GenerateTextRequest,
     ) -> errors::AiLibResult<domain::GenerateTextResponse> {
-        let url = GeminiProvider::gemini_url(&model);
+        let url = GeminiProvider::gemini_url(&request.model_name);
         let gemini_request = request.into();
         let raw_response = self
             .reqwest
@@ -64,8 +63,8 @@ impl provider::ChatProvider for GeminiProvider {
     }
 }
 
-impl From<domain::ChatRequest> for GeminiApiRequest {
-    fn from(value: domain::ChatRequest) -> Self {
+impl From<domain::GenerateTextRequest> for GeminiApiRequest {
+    fn from(value: domain::GenerateTextRequest) -> Self {
         GeminiApiRequest {
             contents: value.prompt.into_iter().map(Content::from).collect(),
         }
@@ -113,8 +112,8 @@ impl From<Content> for domain::ResponseMessage {
 impl From<domain::Role> for Role {
     fn from(value: domain::Role) -> Self {
         match value {
-            domain::Role::User | domain::Role::Assistant => Role::User,
-            domain::Role::System => Role::Model,
+            domain::Role::User => Role::User,
+            domain::Role::Assistant => Role::Model,
         }
     }
 }
@@ -125,7 +124,7 @@ impl From<UsageMetadata> for domain::UsageMetadata {
             input_tokens: value.prompt_token_count.unwrap_or(0)
                 + value.tool_use_prompt_token_count.unwrap_or(0),
             output_tokens: value.candidates_token_count.unwrap_or(0),
-            reasoning_tokens: value.thoughts_token_count.unwrap_or(0),
+            reasoning_tokens: value.thoughts_token_count,
             cached_tokens: value.cached_content_token_count.unwrap_or(0),
             total_tokens: value.total_token_count.unwrap_or(0),
         }

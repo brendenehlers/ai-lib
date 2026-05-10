@@ -1,6 +1,7 @@
 #[derive(Debug)]
-pub struct ChatRequest {
+pub struct GenerateTextRequest {
     pub prompt: Vec<RequestMessage>,
+    pub model_name: String,
 }
 
 #[derive(Debug)]
@@ -13,7 +14,6 @@ pub struct RequestMessage {
 pub enum Role {
     User,
     Assistant,
-    System,
 }
 
 #[derive(Debug)]
@@ -36,7 +36,7 @@ pub struct ResponseMessage {
 pub struct UsageMetadata {
     pub input_tokens: u32,
     pub output_tokens: u32,
-    pub reasoning_tokens: u32,
+    pub reasoning_tokens: Option<u32>,
     pub cached_tokens: u32,
     pub total_tokens: u32,
 }
