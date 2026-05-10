@@ -14,7 +14,7 @@ async fn main() -> core::errors::AiLibResult<()> {
     let anthropic_model = anthropic::models::ClaudeSonnet46::new(anthropic_provider);
 
     let response = core::client::ClientBuilder::new()
-        .model(anthropic_model)
+        .model(gemini_model)
         .prompt("be brief. summarize what it means to be an ai")
         .generate_text()
         .await?;

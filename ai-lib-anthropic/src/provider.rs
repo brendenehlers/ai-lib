@@ -99,7 +99,7 @@ struct Usage {
 impl From<domain::GenerateTextRequest> for AnthropicGenerateTextRequest {
     fn from(value: domain::GenerateTextRequest) -> Self {
         AnthropicGenerateTextRequest {
-            max_tokens: 1024,
+            max_tokens: value.max_tokens.unwrap_or(64000), // minimun supported value between opus, sonnet, and haiku
             messages: value
                 .prompt
                 .into_iter()

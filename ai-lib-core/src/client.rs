@@ -17,6 +17,7 @@ pub struct HasModel<M: Model> {
 pub struct HasPrompt<M: Model> {
     model: M,
     prompt: String,
+    max_tokens: Option<u32>,
 }
 
 impl ClientBuilder<NoModel> {
@@ -37,12 +38,23 @@ impl<M: Model> ClientBuilder<HasModel<M>> {
             state: HasPrompt {
                 model: self.state.model,
                 prompt: prompt.into(),
+                max_tokens: None,
             },
         }
     }
 }
 
 impl<M: Model + ChatModel> ClientBuilder<HasPrompt<M>> {
+    pub fn max_tokens(self, max_tokens: u32) -> ClientBuilder<HasPrompt<M>> {
+        ClientBuilder {
+            state: HasPrompt {
+                model: self.state.model,
+                prompt: self.state.prompt,
+                max_tokens: Some(max_tokens),
+            },
+        }
+    }
+
     pub async fn generate_text(self) -> AiLibResult<ModelResponse<GenerateText>> {
         let request = domain::GenerateTextRequest {
             prompt: vec![domain::RequestMessage {
@@ -50,6 +62,7 @@ impl<M: Model + ChatModel> ClientBuilder<HasPrompt<M>> {
                 role: Some(domain::Role::User),
             }],
             model_name: self.state.model.model_name().into(),
+            max_tokens: self.state.max_tokens,
         };
         let response = self.state.model.generate_text(request).await?;
         Ok(ModelResponse {

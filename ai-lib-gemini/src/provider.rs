@@ -52,7 +52,7 @@ impl provider::ChatProvider for GeminiProvider {
         let raw_response = self
             .reqwest
             .post(url)
-            .json::<GeminiApiRequest>(&gemini_request)
+            .json::<GeminiGenerateTextRequest>(&gemini_request)
             .send()
             .await
             .inspect_err(|e| println!("request failed: {}", e))?;
@@ -63,10 +63,13 @@ impl provider::ChatProvider for GeminiProvider {
     }
 }
 
-impl From<domain::GenerateTextRequest> for GeminiApiRequest {
+impl From<domain::GenerateTextRequest> for GeminiGenerateTextRequest {
     fn from(value: domain::GenerateTextRequest) -> Self {
-        GeminiApiRequest {
+        GeminiGenerateTextRequest {
             contents: value.prompt.into_iter().map(Content::from).collect(),
+            generation_config: GenerationConfig {
+                max_output_tokens: value.max_tokens,
+            },
         }
     }
 }
@@ -133,8 +136,10 @@ impl From<UsageMetadata> for domain::UsageMetadata {
 
 /// https://ai.google.dev/api/generate-content#method:-models.generatecontent
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
-struct GeminiApiRequest {
+struct GeminiGenerateTextRequest {
     contents: Vec<Content>,
+    #[serde(rename = "generationConfig")]
+    generation_config: GenerationConfig,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -149,6 +154,12 @@ enum Role {
     User,
     #[serde(rename = "model")]
     Model,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct GenerationConfig {
+    #[serde(rename = "maxOutputTokens")]
+    max_output_tokens: Option<u32>,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
