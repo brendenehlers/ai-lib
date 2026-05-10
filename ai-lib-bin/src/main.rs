@@ -13,7 +13,8 @@ async fn main() -> core::errors::AiLibResult<()> {
         .model(model)
         .prompt("summarize what it means to be an ai")
         .generate_text()
-        .await?;
+        .await?
+        .into_response();
 
     println!("{:#?}", response);
 
