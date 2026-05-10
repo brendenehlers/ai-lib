@@ -1,8 +1,6 @@
 use crate::{
-    capabilities::{
-        domain::{ChatRequest, ChatResponse, RequestMessage, Role},
-        model::{ChatModel, Model},
-    },
+    capabilities::domain,
+    capabilities::model::{ChatModel, Model},
     errors::AiLibResult,
 };
 
@@ -46,34 +44,49 @@ impl<M: Model> ClientBuilder<HasModel<M>> {
 
 impl<M: Model + ChatModel> ClientBuilder<HasPrompt<M>> {
     pub async fn generate_text(self) -> AiLibResult<ModelResponse<GenerateText>> {
-        let request = ChatRequest {
-            prompt: vec![RequestMessage {
+        let request = domain::ChatRequest {
+            prompt: vec![domain::RequestMessage {
                 text: self.state.prompt,
-                role: Some(Role::User),
+                role: Some(domain::Role::User),
             }],
         };
+        let response = self.state.model.generate_text(request).await?;
         Ok(ModelResponse {
             state: GenerateText {
-                response: self.state.model.generate_text(request).await?,
+                response: response.content,
             },
+            usage: response.usage,
         })
     }
 }
 
+#[derive(Debug)]
 pub struct ModelResponse<S> {
     state: S,
+    usage: domain::UsageMetadata,
 }
 
+#[derive(Debug)]
 pub struct GenerateText {
-    response: ChatResponse,
+    response: domain::ChatResponse,
+}
+
+impl<S> ModelResponse<S> {
+    pub fn get_usage(&self) -> &domain::UsageMetadata {
+        &self.usage
+    }
+
+    pub fn into_usage(self) -> domain::UsageMetadata {
+        self.usage
+    }
 }
 
 impl ModelResponse<GenerateText> {
-    pub fn get_response(&self) -> &ChatResponse {
+    pub fn get_response(&self) -> &domain::ChatResponse {
         &self.state.response
     }
 
-    pub fn into_response(self) -> ChatResponse {
+    pub fn into_response(self) -> domain::ChatResponse {
         self.state.response
     }
 }

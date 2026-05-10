@@ -26,7 +26,7 @@ impl model::ChatModel for Gemini31FlashLite {
     fn generate_text(
         &self,
         request: domain::ChatRequest,
-    ) -> impl Future<Output = errors::AiLibResult<domain::ChatResponse>> + Send {
+    ) -> impl Future<Output = errors::AiLibResult<domain::GenerateTextResponse>> + Send {
         self.provider.generate_text(request, self.model_name())
     }
 }
@@ -51,7 +51,7 @@ impl model::ChatModel for Gemini3Flash {
     fn generate_text(
         &self,
         request: domain::ChatRequest,
-    ) -> impl Future<Output = errors::AiLibResult<domain::ChatResponse>> + Send {
+    ) -> impl Future<Output = errors::AiLibResult<domain::GenerateTextResponse>> + Send {
         self.provider.generate_text(request, self.model_name())
     }
 }

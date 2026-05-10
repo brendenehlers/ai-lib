@@ -11,10 +11,9 @@ async fn main() -> core::errors::AiLibResult<()> {
 
     let response = core::client::ClientBuilder::new()
         .model(model)
-        .prompt("summarize what it means to be an ai")
+        .prompt("be brief. summarize what it means to be an ai")
         .generate_text()
-        .await?
-        .into_response();
+        .await?;
 
     println!("{:#?}", response);
 

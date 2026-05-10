@@ -6,7 +6,7 @@ pub trait ChatProvider {
         &self,
         request: domain::ChatRequest,
         model: &'static str,
-    ) -> impl Future<Output = AiLibResult<domain::ChatResponse>> + Send;
+    ) -> impl Future<Output = AiLibResult<domain::GenerateTextResponse>> + Send;
 }
 
 pub trait EmbeddingProvider {}

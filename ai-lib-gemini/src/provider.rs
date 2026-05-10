@@ -47,7 +47,7 @@ impl provider::ChatProvider for GeminiProvider {
         &self,
         request: domain::ChatRequest,
         model: &'static str,
-    ) -> errors::AiLibResult<domain::ChatResponse> {
+    ) -> errors::AiLibResult<domain::GenerateTextResponse> {
         let url = GeminiProvider::gemini_url(&model);
         let gemini_request = request.into();
         let raw_response = self
@@ -85,11 +85,14 @@ impl From<domain::RequestMessage> for Content {
     }
 }
 
-impl From<GeminiApiResponse> for domain::ChatResponse {
+impl From<GeminiApiResponse> for domain::GenerateTextResponse {
     fn from(value: GeminiApiResponse) -> Self {
         let first_candidate = value.candidates.into_iter().next().unwrap();
-        domain::ChatResponse {
-            content: vec![first_candidate.content.into()],
+        domain::GenerateTextResponse {
+            content: domain::ChatResponse {
+                messages: vec![first_candidate.content.into()],
+            },
+            usage: value.usage_metadata.into(),
         }
     }
 }
@@ -112,6 +115,19 @@ impl From<domain::Role> for Role {
         match value {
             domain::Role::User | domain::Role::Assistant => Role::User,
             domain::Role::System => Role::Model,
+        }
+    }
+}
+
+impl From<UsageMetadata> for domain::UsageMetadata {
+    fn from(value: UsageMetadata) -> Self {
+        domain::UsageMetadata {
+            input_tokens: value.prompt_token_count.unwrap_or(0)
+                + value.tool_use_prompt_token_count.unwrap_or(0),
+            output_tokens: value.candidates_token_count.unwrap_or(0),
+            reasoning_tokens: value.thoughts_token_count.unwrap_or(0),
+            cached_tokens: value.cached_content_token_count.unwrap_or(0),
+            total_tokens: value.total_token_count.unwrap_or(0),
         }
     }
 }
@@ -145,9 +161,27 @@ struct Part {
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 struct GeminiApiResponse {
     candidates: Vec<Candidate>,
+    #[serde(rename = "usageMetadata")]
+    usage_metadata: UsageMetadata,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 struct Candidate {
     content: Content,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct UsageMetadata {
+    #[serde(rename = "promptTokenCount")]
+    prompt_token_count: Option<u32>,
+    #[serde(rename = "cachedContentTokenCount")]
+    cached_content_token_count: Option<u32>,
+    #[serde(rename = "candidatesTokenCount")]
+    candidates_token_count: Option<u32>,
+    #[serde(rename = "toolUsePromptTokenCount")]
+    tool_use_prompt_token_count: Option<u32>,
+    #[serde(rename = "thoughtsTokenCount")]
+    thoughts_token_count: Option<u32>,
+    #[serde(rename = "totalTokenCount")]
+    total_token_count: Option<u32>,
 }

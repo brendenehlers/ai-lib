@@ -9,7 +9,7 @@ pub trait ChatModel {
     fn generate_text(
         &self,
         request: domain::ChatRequest,
-    ) -> impl Future<Output = errors::AiLibResult<domain::ChatResponse>> + Send;
+    ) -> impl Future<Output = errors::AiLibResult<domain::GenerateTextResponse>> + Send;
 }
 
 // trait EmbeddingModel {}
