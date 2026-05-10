@@ -1,9 +1,9 @@
 [package]
-name = "ai-lib-core"
+name = "ai-lib-gemini"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+ai-lib-core = {workspace = true}
 reqwest = {workspace = true}
 serde = {workspace = true}
-thiserror = {workspace = true}

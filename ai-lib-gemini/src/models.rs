@@ -1,11 +1,10 @@
-use crate::{
-    capabilities::{
-        domain,
-        model::{self, Model},
-        provider::ChatProvider,
-    },
-    gemini::provider::GeminiProvider,
+use crate::provider::GeminiProvider;
+use ai_lib_core::capabilities::{
+    domain,
+    model::{self, Model},
+    provider::ChatProvider,
 };
+use ai_lib_core::errors;
 
 pub struct Gemini31FlashLite {
     provider: GeminiProvider,
@@ -27,7 +26,7 @@ impl model::ChatModel for Gemini31FlashLite {
     fn generate_text(
         &self,
         request: domain::ChatRequest,
-    ) -> impl Future<Output = crate::errors::AiLibResult<domain::ChatResponse>> + Send {
+    ) -> impl Future<Output = errors::AiLibResult<domain::ChatResponse>> + Send {
         self.provider.generate_text(request, self.model_name())
     }
 }
@@ -52,7 +51,7 @@ impl model::ChatModel for Gemini3Flash {
     fn generate_text(
         &self,
         request: domain::ChatRequest,
-    ) -> impl Future<Output = crate::errors::AiLibResult<domain::ChatResponse>> + Send {
+    ) -> impl Future<Output = errors::AiLibResult<domain::ChatResponse>> + Send {
         self.provider.generate_text(request, self.model_name())
     }
 }

@@ -1,4 +1,4 @@
-use crate::{
+use ai_lib_core::{
     capabilities::{domain, provider},
     errors,
 };

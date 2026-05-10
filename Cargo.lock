@@ -3,13 +3,30 @@
 version = 4
 
 [[package]]
+name = "ai-lib-bin"
+version = "0.1.0"
+dependencies = [
+ "ai-lib-core",
+ "ai-lib-gemini",
+ "tokio",
+]
+
+[[package]]
 name = "ai-lib-core"
 version = "0.1.0"
 dependencies = [
  "reqwest",
  "serde",
  "thiserror",
- "tokio",
+]
+
+[[package]]
+name = "ai-lib-gemini"
+version = "0.1.0"
+dependencies = [
+ "ai-lib-core",
+ "reqwest",
+ "serde",
 ]
 
 [[package]]
