@@ -1,53 +1,16 @@
 use crate::provider::GeminiProvider;
-use ai_lib_core::capabilities::{domain, model, provider::ChatProvider};
-use ai_lib_core::errors;
+use ai_lib_core::define_model;
 
-pub struct Gemini31FlashLite {
-    provider: GeminiProvider,
-}
+define_model!(
+    name = Gemini31FlashLite,
+    provider = GeminiProvider,
+    model_name = "gemini-3.1-flash-lite",
+    capabilities = [ChatModel],
+);
 
-impl Gemini31FlashLite {
-    pub fn new(provider: GeminiProvider) -> Self {
-        Gemini31FlashLite { provider }
-    }
-}
-
-impl model::Model for Gemini31FlashLite {
-    fn model_name(&self) -> &'static str {
-        "gemini-3.1-flash-lite"
-    }
-}
-
-impl model::ChatModel for Gemini31FlashLite {
-    fn generate_text(
-        &self,
-        request: domain::GenerateTextRequest,
-    ) -> impl Future<Output = errors::AiLibResult<domain::GenerateTextResponse>> + Send {
-        self.provider.generate_text(request)
-    }
-}
-
-pub struct Gemini3Flash {
-    provider: GeminiProvider,
-}
-
-impl Gemini3Flash {
-    pub fn new(provider: GeminiProvider) -> Self {
-        Gemini3Flash { provider }
-    }
-}
-
-impl model::Model for Gemini3Flash {
-    fn model_name(&self) -> &'static str {
-        "gemini-3.0-flash"
-    }
-}
-
-impl model::ChatModel for Gemini3Flash {
-    fn generate_text(
-        &self,
-        request: domain::GenerateTextRequest,
-    ) -> impl Future<Output = errors::AiLibResult<domain::GenerateTextResponse>> + Send {
-        self.provider.generate_text(request)
-    }
-}
+define_model!(
+    name = Gemini3Flash,
+    provider = GeminiProvider,
+    model_name = "gemini-3.0-flash",
+    capabilities = [ChatModel],
+);

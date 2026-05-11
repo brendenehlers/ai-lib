@@ -1,29 +1,16 @@
-use ai_lib_core::capabilities::{domain, model, provider::ChatProvider};
-
 use crate::provider::AnthropicProvider;
+use ai_lib_core::define_model;
 
-pub struct ClaudeSonnet46 {
-    provider: AnthropicProvider,
-}
+define_model!(
+    name = ClaudeSonnet46,
+    provider = AnthropicProvider,
+    model_name = "claude-sonnet-4-6",
+    capabilities = [ChatModel],
+);
 
-impl ClaudeSonnet46 {
-    pub fn new(provider: AnthropicProvider) -> Self {
-        ClaudeSonnet46 { provider }
-    }
-}
-
-impl model::Model for ClaudeSonnet46 {
-    fn model_name(&self) -> &'static str {
-        "claude-sonnet-4-6"
-    }
-}
-
-impl model::ChatModel for ClaudeSonnet46 {
-    fn generate_text(
-        &self,
-        request: domain::GenerateTextRequest,
-    ) -> impl Future<Output = ai_lib_core::errors::AiLibResult<domain::GenerateTextResponse>> + Send
-    {
-        self.provider.generate_text(request)
-    }
-}
+define_model!(
+    name = ClaudeHaiku45,
+    provider = AnthropicProvider,
+    model_name = "claude-haiku-4-5",
+    capabilities = [ChatModel],
+);
