@@ -11,5 +11,3 @@ pub trait ChatModel {
         request: domain::GenerateTextRequest,
     ) -> impl Future<Output = errors::AiLibResult<domain::GenerateTextResponse>> + Send;
 }
-
-// trait EmbeddingModel {}
