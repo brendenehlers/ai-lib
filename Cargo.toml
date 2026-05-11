@@ -8,5 +8,8 @@ ai-lib-gemini = { path = "ai-lib-gemini" }
 ai-lib-anthropic = { path = "ai-lib-anthropic" }
 reqwest = { version = "0.13.3", features = ["json"] }
 serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.140"
 thiserror = "2.0.18"
 tokio = { version = "1.52.3", features = ["rt-multi-thread", "macros"] }
+trybuild = "1.0.108"
+wiremock = "0.6.5"

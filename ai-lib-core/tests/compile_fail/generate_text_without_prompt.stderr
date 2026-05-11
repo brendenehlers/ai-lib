@@ -1,0 +1,9 @@
+error[E0599]: no method named `generate_text` found for struct `ClientBuilder<HasModel<DummyModel>>` in the current scope
+  --> tests/compile_fail/generate_text_without_prompt.rs:30:47
+   |
+30 |     let _ = ClientBuilder::new().model(model).generate_text();
+   |                                               ^^^^^^^^^^^^^ method not found in `ClientBuilder<HasModel<DummyModel>>`
+   |
+   = note: the method was found for
+           - `ClientBuilder<HasMessages<M>>`
+           - `ClientBuilder<HasPrompt<M>>`

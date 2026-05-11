@@ -1,0 +1,21 @@
+error[E0599]: the method `prompt` exists for struct `ClientBuilder<HasModel<NoCapModel>>`, but its trait bounds were not satisfied
+  --> tests/compile_fail/non_chat_model_cannot_prompt.rs:19:47
+   |
+10 | / define_model!(
+11 | |     name = NoCapModel,
+12 | |     provider = NoCapProvider,
+13 | |     model_name = "no-cap",
+14 | |     capabilities = [],
+15 | | );
+   | |_- doesn't satisfy `NoCapModel: ChatModel`
+...
+19 |       let _ = ClientBuilder::new().model(model).prompt("hi");
+   |                                                 ^^^^^^ method cannot be called on `ClientBuilder<HasModel<NoCapModel>>` due to unsatisfied trait bounds
+   |
+   = note: the following trait bounds were not satisfied:
+           `NoCapModel: ChatModel`
+note: the trait `ChatModel` must be implemented
+  --> src/capabilities/model.rs
+   |
+   | pub trait ChatModel {
+   | ^^^^^^^^^^^^^^^^^^^

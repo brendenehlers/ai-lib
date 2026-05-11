@@ -4,14 +4,20 @@ use ai_lib_core::{
 };
 use core::errors;
 
-const MESSAGES_API: &str = "https://api.anthropic.com/v1/messages";
+const DEFAULT_BASE_URL: &str = "https://api.anthropic.com";
+const MESSAGES_PATH: &str = "/v1/messages";
 
 pub struct AnthropicProvider {
     reqwest: reqwest::Client,
+    base_url: String,
 }
 
 impl AnthropicProvider {
     pub fn new(api_key: &str) -> errors::AiLibResult<Self> {
+        Self::with_base_url(api_key, DEFAULT_BASE_URL)
+    }
+
+    pub fn with_base_url(api_key: &str, base_url: &str) -> errors::AiLibResult<Self> {
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert(
             reqwest::header::CONTENT_TYPE,
@@ -28,6 +34,7 @@ impl AnthropicProvider {
         let reqwest = reqwest::Client::builder().default_headers(headers);
         Ok(AnthropicProvider {
             reqwest: reqwest.build()?,
+            base_url: base_url.into(),
         })
     }
 }
@@ -38,9 +45,10 @@ impl provider::ChatProvider for AnthropicProvider {
         request: domain::GenerateTextRequest,
     ) -> core::errors::AiLibResult<domain::GenerateTextResponse> {
         let anthropic_request: AnthropicGenerateTextRequest = request.into();
+        let url = format!("{}{}", self.base_url, MESSAGES_PATH);
         let raw_response = self
             .reqwest
-            .post(MESSAGES_API)
+            .post(url)
             .json::<AnthropicGenerateTextRequest>(&anthropic_request)
             .send()
             .await?;

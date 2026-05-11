@@ -7,3 +7,7 @@ edition = "2024"
 reqwest = {workspace = true}
 serde = {workspace = true}
 thiserror = {workspace = true}
+
+[dev-dependencies]
+tokio = {workspace = true}
+trybuild = {workspace = true}

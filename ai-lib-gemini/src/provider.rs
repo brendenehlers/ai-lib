@@ -4,8 +4,11 @@ use ai_lib_core::{
 };
 use reqwest::header;
 
+const DEFAULT_BASE_URL: &str = "https://generativelanguage.googleapis.com";
+
 pub struct GeminiProvider {
     reqwest: reqwest::Client,
+    base_url: String,
 }
 
 pub enum GeminiAuth {
@@ -14,6 +17,10 @@ pub enum GeminiAuth {
 
 impl GeminiProvider {
     pub fn new(auth: GeminiAuth) -> errors::AiLibResult<Self> {
+        Self::with_base_url(auth, DEFAULT_BASE_URL)
+    }
+
+    pub fn with_base_url(auth: GeminiAuth, base_url: &str) -> errors::AiLibResult<Self> {
         let mut headers = header::HeaderMap::new();
         headers.insert(
             header::CONTENT_TYPE,
@@ -21,7 +28,6 @@ impl GeminiProvider {
         );
         match auth {
             GeminiAuth::ApiKey(api_key) => {
-                let api_key = api_key.clone();
                 headers.insert(
                     header::HeaderName::from_static("x-goog-api-key"),
                     header::HeaderValue::from_str(api_key.as_str())?,
@@ -31,14 +37,12 @@ impl GeminiProvider {
         let reqwest = reqwest::Client::builder().default_headers(headers);
         Ok(GeminiProvider {
             reqwest: reqwest.build()?,
+            base_url: base_url.into(),
         })
     }
 
-    fn gemini_url(model: &str) -> String {
-        format!(
-            "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent",
-            &model
-        )
+    fn gemini_url(&self, model: &str) -> String {
+        format!("{}/v1beta/models/{}:generateContent", self.base_url, model)
     }
 }
 
@@ -47,7 +51,7 @@ impl provider::ChatProvider for GeminiProvider {
         &self,
         request: domain::GenerateTextRequest,
     ) -> errors::AiLibResult<domain::GenerateTextResponse> {
-        let url = GeminiProvider::gemini_url(&request.model_name);
+        let url = self.gemini_url(&request.model_name);
         let gemini_request = request.into();
         let raw_response = self
             .reqwest

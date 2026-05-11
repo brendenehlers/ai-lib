@@ -1,0 +1,8 @@
+error[E0599]: no method named `prompt` found for struct `ClientBuilder<NoModel>` in the current scope
+ --> tests/compile_fail/prompt_without_model.rs:6:34
+  |
+6 |     let _ = ClientBuilder::new().prompt("hi");
+  |                                  ^^^^^^ method not found in `ClientBuilder<NoModel>`
+  |
+  = note: the method was found for
+          - `ClientBuilder<HasModel<M>>`
