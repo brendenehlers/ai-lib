@@ -68,6 +68,75 @@ impl provider::ChatProvider for GeminiProvider {
     }
 }
 
+/// https://ai.google.dev/api/generate-content#method:-models.generatecontent
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct GeminiGenerateTextRequest {
+    contents: Vec<Content>,
+    #[serde(rename = "generationConfig")]
+    generation_config: GenerationConfig,
+    #[serde(rename = "systemInstruction")]
+    system_instruction: Option<SystemInstruction>,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct Content {
+    parts: Vec<Part>,
+    role: Option<Role>,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+enum Role {
+    #[serde(rename = "user")]
+    User,
+    #[serde(rename = "model")]
+    Model,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct GenerationConfig {
+    #[serde(rename = "maxOutputTokens")]
+    max_output_tokens: Option<u32>,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct Part {
+    text: String,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct SystemInstruction {
+    parts: Vec<Part>,
+}
+
+/// https://ai.google.dev/api/generate-content#generatecontentresponse
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct GeminiApiResponse {
+    candidates: Vec<Candidate>,
+    #[serde(rename = "usageMetadata")]
+    usage_metadata: UsageMetadata,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct Candidate {
+    content: Content,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct UsageMetadata {
+    #[serde(rename = "promptTokenCount")]
+    prompt_token_count: Option<u32>,
+    #[serde(rename = "cachedContentTokenCount")]
+    cached_content_token_count: Option<u32>,
+    #[serde(rename = "candidatesTokenCount")]
+    candidates_token_count: Option<u32>,
+    #[serde(rename = "toolUsePromptTokenCount")]
+    tool_use_prompt_token_count: Option<u32>,
+    #[serde(rename = "thoughtsTokenCount")]
+    thoughts_token_count: Option<u32>,
+    #[serde(rename = "totalTokenCount")]
+    total_token_count: Option<u32>,
+}
+
 impl From<domain::GenerateTextRequest> for GeminiGenerateTextRequest {
     fn from(value: domain::GenerateTextRequest) -> Self {
         GeminiGenerateTextRequest {
@@ -75,6 +144,9 @@ impl From<domain::GenerateTextRequest> for GeminiGenerateTextRequest {
             generation_config: GenerationConfig {
                 max_output_tokens: value.max_tokens,
             },
+            system_instruction: value.system_prompt.map(|s| SystemInstruction {
+                parts: vec![Part { text: s }],
+            }),
         }
     }
 }
@@ -137,66 +209,4 @@ impl From<UsageMetadata> for domain::UsageMetadata {
             total_tokens: value.total_token_count.unwrap_or(0),
         }
     }
-}
-
-/// https://ai.google.dev/api/generate-content#method:-models.generatecontent
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-struct GeminiGenerateTextRequest {
-    contents: Vec<Content>,
-    #[serde(rename = "generationConfig")]
-    generation_config: GenerationConfig,
-}
-
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-struct Content {
-    parts: Vec<Part>,
-    role: Option<Role>,
-}
-
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-enum Role {
-    #[serde(rename = "user")]
-    User,
-    #[serde(rename = "model")]
-    Model,
-}
-
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-struct GenerationConfig {
-    #[serde(rename = "maxOutputTokens")]
-    max_output_tokens: Option<u32>,
-}
-
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-struct Part {
-    text: String,
-}
-
-/// https://ai.google.dev/api/generate-content#generatecontentresponse
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-struct GeminiApiResponse {
-    candidates: Vec<Candidate>,
-    #[serde(rename = "usageMetadata")]
-    usage_metadata: UsageMetadata,
-}
-
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-struct Candidate {
-    content: Content,
-}
-
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-struct UsageMetadata {
-    #[serde(rename = "promptTokenCount")]
-    prompt_token_count: Option<u32>,
-    #[serde(rename = "cachedContentTokenCount")]
-    cached_content_token_count: Option<u32>,
-    #[serde(rename = "candidatesTokenCount")]
-    candidates_token_count: Option<u32>,
-    #[serde(rename = "toolUsePromptTokenCount")]
-    tool_use_prompt_token_count: Option<u32>,
-    #[serde(rename = "thoughtsTokenCount")]
-    thoughts_token_count: Option<u32>,
-    #[serde(rename = "totalTokenCount")]
-    total_token_count: Option<u32>,
 }

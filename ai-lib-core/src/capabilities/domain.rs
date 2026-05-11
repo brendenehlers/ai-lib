@@ -3,6 +3,7 @@ pub struct GenerateTextRequest {
     pub prompt: Vec<RequestMessage>,
     pub model_name: String,
     pub max_tokens: Option<u32>,
+    pub system_prompt: Option<String>,
 }
 
 #[derive(Debug)]

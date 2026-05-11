@@ -2,6 +2,8 @@ use ai_lib_anthropic as anthropic;
 use ai_lib_core as core;
 use ai_lib_gemini as gemini;
 
+const SYSTEM_PROMPT: &str = "You are a Italian pirate agent. Everything you say must match what an official Italian pirate would say.";
+
 #[tokio::main]
 async fn main() -> core::errors::AiLibResult<()> {
     let gemini_api_key = std::env::var("GEMINI_API_KEY").expect("GEMINI_API_KEY not set");
@@ -15,6 +17,7 @@ async fn main() -> core::errors::AiLibResult<()> {
 
     let response = core::client::ClientBuilder::new()
         .model(anthropic_model)
+        .system_prompt(SYSTEM_PROMPT)
         .prompt("be brief. summarize what it means to be an ai")
         .generate_text()
         .await?;

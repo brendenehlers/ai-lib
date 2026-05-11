@@ -65,6 +65,7 @@ struct AnthropicGenerateTextRequest {
     max_tokens: u32,
     messages: Vec<MessageParam>,
     model: String,
+    system: Option<SystemPrompt>,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -79,6 +80,20 @@ enum Role {
     User,
     #[serde(rename = "assistant")]
     Assistant,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+enum SystemPrompt {
+    Text(String),
+    Blocks(Vec<SystemBlock>),
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct SystemBlock {
+    #[serde(rename = "type")]
+    kind: String,
+    text: String,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -112,6 +127,7 @@ impl From<domain::GenerateTextRequest> for AnthropicGenerateTextRequest {
                 .map(domain::RequestMessage::into)
                 .collect(),
             model: value.model_name,
+            system: value.system_prompt.map(|s| SystemPrompt::Text(s)),
         }
     }
 }
