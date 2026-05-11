@@ -1,5 +1,5 @@
 use ai_lib_anthropic as anthropic;
-use ai_lib_core as core;
+use ai_lib_core::{self as core, capabilities::domain::RequestMessage};
 use ai_lib_gemini as gemini;
 
 const SYSTEM_PROMPT: &str = "You are a Italian pirate agent. Everything you say must match what an official Italian pirate would say.";
@@ -16,9 +16,23 @@ async fn main() -> core::errors::AiLibResult<()> {
     let anthropic_model = anthropic::models::ClaudeSonnet46::new(anthropic_provider);
 
     let response = core::client::ClientBuilder::new()
-        .model(anthropic_model)
+        .model(gemini_model)
         .system_prompt(SYSTEM_PROMPT)
-        .prompt("be brief. summarize what it means to be an ai")
+        // .prompt("be brief. summarize what it means to be an ai")
+        .messages(vec![
+            RequestMessage {
+                role: Some(ai_lib_core::capabilities::domain::Role::User),
+                text: "hello, my name is brenden".into(),
+            },
+            RequestMessage {
+                role: Some(ai_lib_core::capabilities::domain::Role::Assistant),
+                text: "your name is brenden".into(),
+            },
+            RequestMessage {
+                role: Some(ai_lib_core::capabilities::domain::Role::User),
+                text: "what is my name?".into(),
+            },
+        ])
         .generate_text()
         .await?;
 

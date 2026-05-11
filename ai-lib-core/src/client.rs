@@ -21,6 +21,11 @@ pub struct HasPrompt<M: Model> {
     prompt: String,
 }
 
+pub struct HasMessages<M: Model> {
+    model: M,
+    messages: Vec<domain::RequestMessage>,
+}
+
 impl<S> ClientBuilder<S> {
     pub fn max_tokens(mut self, max_tokens: u32) -> Self {
         self.max_tokens = Some(max_tokens);
@@ -51,12 +56,23 @@ impl ClientBuilder<NoModel> {
     }
 }
 
-impl<M: Model> ClientBuilder<HasModel<M>> {
+impl<M: Model + ChatModel> ClientBuilder<HasModel<M>> {
     pub fn prompt(self, prompt: &str) -> ClientBuilder<HasPrompt<M>> {
         ClientBuilder {
             state: HasPrompt {
                 model: self.state.model,
                 prompt: prompt.into(),
+            },
+            max_tokens: self.max_tokens,
+            system_prompt: self.system_prompt,
+        }
+    }
+
+    pub fn messages(self, messages: Vec<domain::RequestMessage>) -> ClientBuilder<HasMessages<M>> {
+        ClientBuilder {
+            state: HasMessages {
+                model: self.state.model,
+                messages,
             },
             max_tokens: self.max_tokens,
             system_prompt: self.system_prompt,
@@ -71,6 +87,24 @@ impl<M: Model + ChatModel> ClientBuilder<HasPrompt<M>> {
                 text: self.state.prompt,
                 role: Some(domain::Role::User),
             }],
+            model_name: self.state.model.model_name().into(),
+            max_tokens: self.max_tokens,
+            system_prompt: self.system_prompt,
+        };
+        let response = self.state.model.generate_text(request).await?;
+        Ok(ModelResponse {
+            state: GenerateText {
+                response: response.content,
+            },
+            usage: response.usage,
+        })
+    }
+}
+
+impl<M: Model + ChatModel> ClientBuilder<HasMessages<M>> {
+    pub async fn generate_text(self) -> AiLibResult<ModelResponse<GenerateText>> {
+        let request = domain::GenerateTextRequest {
+            prompt: self.state.messages,
             model_name: self.state.model.model_name().into(),
             max_tokens: self.max_tokens,
             system_prompt: self.system_prompt,
