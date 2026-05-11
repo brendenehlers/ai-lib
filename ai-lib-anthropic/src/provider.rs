@@ -45,6 +45,12 @@ impl provider::ChatProvider for AnthropicProvider {
             .send()
             .await?;
 
+        if !raw_response.status().is_success() {
+            let status = raw_response.status();
+            let body = raw_response.text().await?;
+            return Err(core::errors::AiLibError::HttpStatus { status, body });
+        }
+
         let response = raw_response
             .json::<AnthropicGenerateTextResponse>()
             .await?

@@ -5,6 +5,9 @@ pub enum AiLibError {
 
     #[error("Invalid header value: {0}")]
     InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
+
+    #[error("HTTP {status}: {body}")]
+    HttpStatus { status: reqwest::StatusCode, body: String },
 }
 
 pub type AiLibResult<T> = Result<T, AiLibError>;

@@ -54,8 +54,13 @@ impl provider::ChatProvider for GeminiProvider {
             .post(url)
             .json::<GeminiGenerateTextRequest>(&gemini_request)
             .send()
-            .await
-            .inspect_err(|e| println!("request failed: {}", e))?;
+            .await?;
+
+        if !raw_response.status().is_success() {
+            let status = raw_response.status();
+            let body = raw_response.text().await?;
+            return Err(errors::AiLibError::HttpStatus { status, body });
+        }
 
         let chat_response = raw_response.json::<GeminiApiResponse>().await?.into();
 
