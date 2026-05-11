@@ -13,7 +13,7 @@ async fn main() -> core::errors::AiLibResult<()> {
 
     let anthropic_api_key = std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY not set");
     let anthropic_provider = anthropic::provider::AnthropicProvider::new(&anthropic_api_key)?;
-    let anthropic_model = anthropic::models::ClaudeSonnet46::new(anthropic_provider);
+    let _anthropic_model = anthropic::models::ClaudeSonnet46::new(anthropic_provider);
 
     let response = core::client::ClientBuilder::new()
         .model(gemini_model)

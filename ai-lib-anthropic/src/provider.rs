@@ -135,7 +135,7 @@ impl From<domain::GenerateTextRequest> for AnthropicGenerateTextRequest {
                 .map(domain::RequestMessage::into)
                 .collect(),
             model: value.model_name,
-            system: value.system_prompt.map(|s| SystemPrompt::Text(s)),
+            system: value.system_prompt.map(SystemPrompt::Text),
         }
     }
 }

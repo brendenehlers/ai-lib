@@ -157,13 +157,9 @@ impl From<domain::GenerateTextRequest> for GeminiGenerateTextRequest {
 
 impl From<domain::RequestMessage> for Content {
     fn from(value: domain::RequestMessage) -> Self {
-        let text = value.text;
         Content {
-            parts: vec![Part { text: text }],
-            role: match value.role {
-                Some(role) => Some(role.into()),
-                None => None,
-            },
+            parts: vec![Part { text: value.text }],
+            role: value.role.map(Into::into),
         }
     }
 }

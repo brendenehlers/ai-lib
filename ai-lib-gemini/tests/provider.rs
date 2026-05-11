@@ -14,11 +14,9 @@ const MODEL: &str = "gemini-3.1-flash-lite";
 
 async fn setup() -> (MockServer, GeminiProvider) {
     let server = MockServer::start().await;
-    let provider = GeminiProvider::with_base_url(
-        GeminiAuth::ApiKey(TEST_API_KEY.into()),
-        &server.uri(),
-    )
-    .expect("provider should build");
+    let provider =
+        GeminiProvider::with_base_url(GeminiAuth::ApiKey(TEST_API_KEY.into()), &server.uri())
+            .expect("provider should build");
     (server, provider)
 }
 

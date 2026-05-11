@@ -56,6 +56,12 @@ impl ClientBuilder<NoModel> {
     }
 }
 
+impl Default for ClientBuilder<NoModel> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<M: Model + ChatModel> ClientBuilder<HasModel<M>> {
     pub fn prompt(self, prompt: &str) -> ClientBuilder<HasPrompt<M>> {
         ClientBuilder {
